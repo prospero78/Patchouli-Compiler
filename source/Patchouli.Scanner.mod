@@ -139,8 +139,11 @@ PROCEDURE Identifier(VAR sym: INTEGER);
             INC(i)
          END;
          Read
+         (* UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
+               OR (ch # '_') OR (ch > 'z') OR (ch > 'Я') OR (ch > 'ё')
+               OR (ch >'Ё'); *)
       UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
-         OR (ch # '_') & (ch > 'Z') & (ch < 'a') OR (ch > 'z');
+         OR (ch # '_') & (ch > 'Z') & (ch < 'a') OR (ch > 'z'); 
       IF i <= MaxIdLen THEN
          id[i] := 0X
       ELSE 
@@ -473,15 +476,21 @@ PROCEDURE EnterKW(sym: INTEGER; name: IdStr);
 BEGIN
    k := 0; KWX[0] := 0; KWX[1] := 0;
    EnterKW(if, 'IF');
+   
    EnterKW(do, 'DO');
    EnterKW(of, 'OF');
    EnterKW(or, 'OR');
    EnterKW(to, 'TO');
+   
    EnterKW(in, 'IN');
+   
    EnterKW(is, 'IS');
+   
    EnterKW(by, 'BY');
    KWX[2] := k;
+   
    EnterKW(end, 'END');
+   
    EnterKW(nil, 'NIL');
    EnterKW(var, 'VAR');
    EnterKW(div, 'DIV');

@@ -6,8 +6,8 @@
 «Конструирование компиляторов» и компилятора Oberon-07 в
 Project Oberon (2013).
 
-Целью является внедрение рекурсивного спускаемого компилятора для языка 
-Oberon-07, архитектуры Intel 64.
+Целью является разработка рекурсивного спускаемого компилятора для языка 
+Oberon-07, архитектуры Intel 64 на расском и английском языках.
 
 Ранее назывался AyaCompiler, который был компилятором с одним проходом.
 Однако, поскольку текущая версия (которая использует дерево синтаксиса)
@@ -25,3 +25,6 @@ BSD-2
 Специфичные для компилятора функции описаны в:[Документация о подробностях](https://github.com/congdm/Patchouli-Compiler/wiki/Detailed-Documentation)
 
 О внутренней работе компилятора: [Конструирование компиляторов](https://www.inf.ethz.ch/personal/wirth/CompilerConstruction/index.html) and [Project Oberon 2013](https://www.inf.ethz.ch/personal/wirth/ProjectOberon/index.html) are pretty sufficient.
+
+## Сборка
+Для самосборки используйте "self_build".

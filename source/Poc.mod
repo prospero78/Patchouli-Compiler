@@ -25,7 +25,9 @@ PROCEDURE Compile(fname: ARRAY OF CHAR);
    BEGIN
       Out.String('Компилирую: '); Out.String(fname); Out.Ln;
       B.SetSrcPath(fname);
-      srcfile := Files.Old(fname); S.Init(srcfile, 0); S.Get(sym);
+      srcfile := Files.Old(fname);
+      S.Init(srcfile, 0);
+      S.Get(sym);
       
       startTime := Rtl.Time();
       IF sym = S.module THEN
@@ -34,8 +36,11 @@ PROCEDURE Compile(fname: ARRAY OF CHAR);
          S.Mark('МОДУЛЬ?')
       END;
       IF S.errcnt = 0 THEN
-         B.WriteSymfile; G.Generate(modinit);
-         B.Cleanup; G.Cleanup; endTime := Rtl.Time()
+         B.WriteSymfile;
+         G.Generate(modinit);
+         B.Cleanup;
+         G.Cleanup;
+         endTime := Rtl.Time()
       END;
       IF S.errcnt = 0 THEN
          Out.String('Размер кода: '); Out.Int(G.pc, 0); Out.Ln;

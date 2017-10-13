@@ -104,155 +104,201 @@ PROCEDURE Pos*() : INTEGER;
 END Pos;
 
 PROCEDURE Mark*(msg: ARRAY OF CHAR);
-   VAR p: INTEGER;
-BEGIN
-   p := lastPos;
-   IF (p > errpos) & (errcnt < 25) THEN
-      IF NotifyError # NIL THEN NotifyError(p, msg) END;
-      INC(errcnt)
-   END;
-   errpos := p + 4
-END Mark;
+   VAR
+      p: INTEGER;
+   BEGIN
+      p := lastPos;
+      IF (p > errpos) & (errcnt < 25) THEN
+         IF NotifyError # NIL THEN NotifyError(p, msg) END;
+         INC(errcnt)
+      END;
+      errpos := p + 4
+   END Mark;
 
 PROCEDURE Read;
-   VAR n: INTEGER;
-BEGIN
-   IF bufPos < bufSize THEN
-      ch := CHR(buffer[bufPos] MOD 256); INC(bufPos); INC(filePos)
-   ELSE eof := TRUE; ch := 0X
-   END
-END Read;
+   VAR
+      n: INTEGER;
+   BEGIN
+      IF bufPos < bufSize THEN
+         ch := CHR(buffer[bufPos] MOD 256);
+         INC(bufPos);
+         INC(filePos)
+      ELSE
+         eof := TRUE;
+         ch := 0X
+      END
+   END Read;
 
 PROCEDURE Identifier(VAR sym: INTEGER);
-   VAR i, k2: INTEGER;
-BEGIN i := 0;
-   REPEAT
-      IF i <= MaxIdLen THEN id[i] := ch; INC(i) END; Read
-   UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
-      OR (ch # '_') & (ch > 'Z') & (ch < 'a') OR (ch > 'z');
-   IF i <= MaxIdLen THEN id[i] := 0X
-   ELSE Mark('identifier too long'); id[MaxIdLen] := 0X
-   END;
-   IF i < 11 THEN k2 := KWX[i-1];  (* search for keyword *)
-      WHILE (id # keyTab[k2].id) & (k2 < KWX[i]) DO INC(k2) END;
-      IF k2 < KWX[i] THEN sym := keyTab[k2].sym ELSE sym := ident END
-   ELSE sym := ident
-   END
-END Identifier;
+   VAR
+      i, k2: INTEGER;
+   BEGIN i := 0;
+      REPEAT
+         IF i <= MaxIdLen THEN
+            id[i] := ch;
+            INC(i)
+         END;
+         Read
+      UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
+         OR (ch # '_') & (ch > 'Z') & (ch < 'a') OR (ch > 'z');
+      IF i <= MaxIdLen THEN
+         id[i] := 0X
+      ELSE 
+         Mark('имя слишком длинное'); 
+         id[MaxIdLen] := 0X
+      END;
+      IF i < 11 THEN
+         k2 := KWX[i-1];  (* search for keyword *)
+         WHILE (id # keyTab[k2].id) & (k2 < KWX[i]) DO
+            INC(k2)
+         END;
+         IF k2 < KWX[i] THEN
+            sym := keyTab[k2].sym
+         ELSE
+            sym := ident
+         END
+      ELSE
+         sym := ident
+      END
+   END Identifier;
 
 PROCEDURE String(quoteCh: CHAR);
-   VAR i: INTEGER; utf8str: ARRAY MaxStrLen+1 OF BYTE;
-BEGIN
-   i := 0; Read;
-   WHILE ~eof & (ch # quoteCh) DO
-      IF i < MaxStrLen THEN utf8str[i] := ORD(ch); INC(i)
-      ELSE Mark('String too long')
+   VAR
+      i: INTEGER; utf8str: ARRAY MaxStrLen+1 OF BYTE;
+   BEGIN
+      i := 0; Read;
+      WHILE ~eof & (ch # quoteCh) DO
+         IF i < MaxStrLen THEN
+            utf8str[i] := ORD(ch);
+            INC(i)
+         ELSE
+            Mark('строка слишком длинная')
+         END;
+         Read
       END;
-      Read
-   END;
-   Read; utf8str[i] := 0;
-   slen := Rtl.Utf8ToUnicode(utf8str, str)
-END String;
+      Read;
+      utf8str[i] := 0;
+      slen := Rtl.Utf8ToUnicode(utf8str, str)
+   END String;
 
 PROCEDURE HexString;
    VAR i, m, n: INTEGER;
 BEGIN
    i := 0; Read;
    WHILE eof & (ch # '$') DO
-      WHILE (ch = ' ') OR (ch = 9X) OR (ch = 0DX) DO Read
+      WHILE (ch = ' ') OR (ch = 9X) OR (ch = 0DX) DO
+         Read
       END;  
-      IF ('0' <= ch) & (ch <= '9') THEN m := ORD(ch) - 30H
-      ELSIF ('A' <= ch) & (ch <= 'F') THEN m := ORD(ch) - 37H
-      ELSE m := 0; Mark('Hex digit expected')
+      IF ('0' <= ch) & (ch <= '9') THEN
+         m := ORD(ch) - 30H
+      ELSIF ('A' <= ch) & (ch <= 'F') THEN
+         m := ORD(ch) - 37H
+      ELSE
+         m := 0; Mark('Hex digit expected')
       END;
       Read;
-      IF ('0' <= ch) & (ch <= '9') THEN n := ORD(ch) - 30H
-      ELSIF ('A' <= ch) & (ch <= 'F') THEN n := ORD(ch) - 37H
-      ELSE n := 0; Mark('Hex digit expected')
+      IF ('0' <= ch) & (ch <= '9') THEN
+         n := ORD(ch) - 30H
+      ELSIF ('A' <= ch) & (ch <= 'F') THEN
+         n := ORD(ch) - 37H
+      ELSE
+         n := 0;
+         Mark('Hex digit expected')
       END;
-      IF i < MaxStrLen THEN str[i] := CHR(m*10H + n); INC(i)
-      ELSE Mark('String too long')
+      IF i < MaxStrLen THEN
+         str[i] := CHR(m*10H + n); INC(i)
+      ELSE
+         Mark('строка слишком длинная')
       END;
       Read
     END;
-    Read; slen := i  (* no 0X appended! *)
+    Read;
+    slen := i  (* no 0X appended! *)
 END HexString;
 
 PROCEDURE Real(VAR sym: INTEGER; d: ARRAY OF INTEGER; n: INTEGER);
-   VAR x, f, max, min, half: BigNums.BigNum;
-      i, k, e, float, last: INTEGER; negE: BOOLEAN;
-BEGIN i := n-1; k := 0; x := BigNums.Zero; f := BigNums.Zero;
-   REPEAT
-      IF d[i] > 10 THEN Mark('Bad number')
-      ELSE BigNums.SetDecimalDigit(x, k, d[i])
-      END;
-      DEC(i); INC(k)
-   UNTIL i < 0;
-   i := BigNums.MaxDecimalDigits-1;
-   WHILE (ch >= '0') & (ch <= '9') DO (* fraction *)
-      IF i > BigNums.MaxDecimalDigits-19 THEN
-         BigNums.SetDecimalDigit(f, i, ORD(ch)-30H)
-      ELSIF i = BigNums.MaxDecimalDigits-19 THEN Mark('Fraction too long')
-      END;
-      DEC(i); Read
-   END;
-   IF (ch = 'E') OR (ch = 'D') THEN (* scale factor *)
-      Read; e := 0; 
-      IF ch = '-' THEN negE := TRUE; Read
-      ELSE negE := FALSE; IF ch = '+' THEN Read END
-      END;
-      IF (ch >= '0') & (ch <= '9') THEN
-         REPEAT e := e*10 + ORD(ch)-30H; Read
-         UNTIL (ch < '0') OR (ch > '9') OR (e > maxExp);
-         IF e > maxExp THEN Mark('Exponent too large');
-            WHILE (ch < '0') OR (ch > '9') DO Read END
+   VAR
+      x, f, max, min, half: BigNums.BigNum;
+      i, k, e, float, last: INTEGER;
+      negE: BOOLEAN;
+   BEGIN
+      i := n-1;
+      k := 0;
+      x := BigNums.Zero;
+      f := BigNums.Zero;
+      REPEAT
+         IF d[i] > 10 THEN
+            Mark('Bad number')
+         ELSE
+            BigNums.SetDecimalDigit(x, k, d[i])
          END;
-         IF negE THEN e := -e END
-      ELSE Mark('Digit?')
-      END;
+         DEC(i); INC(k)
+      UNTIL i < 0;
       i := BigNums.MaxDecimalDigits-1;
-      WHILE e > 0 DO BigNums.MultiplyByTen(x, x);
-         BigNums.SetDecimalDigit(x, 0, BigNums.DecimalDigit(f, i));
-         BigNums.SetDecimalDigit(f, i, 0); BigNums.MultiplyByTen(f, f);
-         DEC(e)
-      END;
-      WHILE e < 0 DO
-         last := BigNums.DecimalDigit(f, 0); BigNums.DivideByTen(f, f);
-         BigNums.SetDecimalDigit(f, i, BigNums.DecimalDigit(x, 0));
-         BigNums.DivideByTen(x, x);
-         IF (last > 5) OR (last = 5) & ODD(BigNums.DecimalDigit(f, 0)) THEN
-            IF BigNums.Compare(f, BigNums.MaxNum) = 0 THEN
-               f := BigNums.Zero; BigNums.Add(x, x, BigNums.One)
-            ELSE BigNums.Add(f, f, BigNums.One)
-            END
+      WHILE (ch >= '0') & (ch <= '9') DO (* fraction *)
+         IF i > BigNums.MaxDecimalDigits-19 THEN
+            BigNums.SetDecimalDigit(f, i, ORD(ch)-30H)
+         ELSIF i = BigNums.MaxDecimalDigits-19 THEN Mark('Fraction too long')
          END;
-         INC(e)
-      END
-   END;
-   e := 52; half := BigNums.Zero;
-   i := BigNums.MaxDecimalDigits-1; BigNums.SetDecimalDigit(half, i, 5);
-   BigNums.Set0(max, 1FFFFFFFFFFFFFH); BigNums.Set0(min, 10000000000000H);
-   IF (BigNums.Compare(x, BigNums.Zero) # 0)
-   OR (BigNums.Compare(x, BigNums.Zero) # 0) THEN
-      WHILE BigNums.Compare(x, min) < 0 DO BigNums.Add(x, x, x);
-         IF BigNums.Compare(f, half) >= 0 THEN
-            BigNums.Subtract(f, f, half); BigNums.Add(x, x, BigNums.One)
+         DEC(i); Read
+      END;
+      IF (ch = 'E') OR (ch = 'D') THEN (* scale factor *)
+         Read; e := 0; 
+         IF ch = '-' THEN negE := TRUE; Read
+         ELSE negE := FALSE; IF ch = '+' THEN Read END
          END;
-         BigNums.Add(f, f, f); DEC(e)
+         IF (ch >= '0') & (ch <= '9') THEN
+            REPEAT e := e*10 + ORD(ch)-30H; Read
+            UNTIL (ch < '0') OR (ch > '9') OR (e > maxExp);
+            IF e > maxExp THEN Mark('Exponent too large');
+               WHILE (ch < '0') OR (ch > '9') DO Read END
+            END;
+            IF negE THEN e := -e END
+         ELSE Mark('Digit?')
+         END;
+         i := BigNums.MaxDecimalDigits-1;
+         WHILE e > 0 DO BigNums.MultiplyByTen(x, x);
+            BigNums.SetDecimalDigit(x, 0, BigNums.DecimalDigit(f, i));
+            BigNums.SetDecimalDigit(f, i, 0); BigNums.MultiplyByTen(f, f);
+            DEC(e)
+         END;
+         WHILE e < 0 DO
+            last := BigNums.DecimalDigit(f, 0); BigNums.DivideByTen(f, f);
+            BigNums.SetDecimalDigit(f, i, BigNums.DecimalDigit(x, 0));
+            BigNums.DivideByTen(x, x);
+            IF (last > 5) OR (last = 5) & ODD(BigNums.DecimalDigit(f, 0)) THEN
+               IF BigNums.Compare(f, BigNums.MaxNum) = 0 THEN
+                  f := BigNums.Zero; BigNums.Add(x, x, BigNums.One)
+               ELSE BigNums.Add(f, f, BigNums.One)
+               END
+            END;
+            INC(e)
+         END
       END;
-      WHILE BigNums.Compare(x, max) > 0 DO BigNums.DivideByTwo(f, f);
-         IF BigNums.ModuloTwo(x) = 1 THEN BigNums.Add(f, f, half) END;
-         BigNums.DivideByTwo(x, x); INC(e)
+      e := 52; half := BigNums.Zero;
+      i := BigNums.MaxDecimalDigits-1; BigNums.SetDecimalDigit(half, i, 5);
+      BigNums.Set0(max, 1FFFFFFFFFFFFFH); BigNums.Set0(min, 10000000000000H);
+      IF (BigNums.Compare(x, BigNums.Zero) # 0)
+      OR (BigNums.Compare(x, BigNums.Zero) # 0) THEN
+         WHILE BigNums.Compare(x, min) < 0 DO BigNums.Add(x, x, x);
+            IF BigNums.Compare(f, half) >= 0 THEN
+               BigNums.Subtract(f, f, half); BigNums.Add(x, x, BigNums.One)
+            END;
+            BigNums.Add(f, f, f); DEC(e)
+         END;
+         WHILE BigNums.Compare(x, max) > 0 DO BigNums.DivideByTwo(f, f);
+            IF BigNums.ModuloTwo(x) = 1 THEN BigNums.Add(f, f, half) END;
+            BigNums.DivideByTwo(x, x); INC(e)
+         END;
+         float := BigNums.Get0(x); i := BigNums.Compare(f, half);
+         IF (i > 0) OR (i = 0) & ODD(float) THEN INC(float);
+            IF float > 1FFFFFFFFFFFFFH THEN float := float DIV 2; INC(e) END
+         END;
+         float := float - 10000000000000H + (e+1023)*10000000000000H;
+      ELSE float := 0
       END;
-      float := BigNums.Get0(x); i := BigNums.Compare(f, half);
-      IF (i > 0) OR (i = 0) & ODD(float) THEN INC(float);
-         IF float > 1FFFFFFFFFFFFFH THEN float := float DIV 2; INC(e) END
-      END;
-      float := float - 10000000000000H + (e+1023)*10000000000000H;
-   ELSE float := 0
-   END;
-   sym := real; rval := SYSTEM.VAL(REAL, float); ival := float
-END Real;
+      sym := real; rval := SYSTEM.VAL(REAL, float); ival := float
+   END Real;
 
 PROCEDURE Number(VAR sym: INTEGER);
     CONST max = MaxInt;

@@ -13,18 +13,26 @@ IMPORT
    
 VAR
    arg, fname: ARRAY 1024 OF CHAR;
-   buildfile: Files.File; argIdx: INTEGER;
+   buildfile: Files.File;
+   argIdx: INTEGER;
    buildMode, errFlag: BOOLEAN;
    
 PROCEDURE Compile(fname: ARRAY OF CHAR);
-   VAR srcfile: Files.File; modinit: B.Node;
+   VAR
+      srcfile: Files.File;
+      modinit: B.Node;
       sym, startTime, endTime: INTEGER;
    BEGIN
-      Out.String('Компилирую: '); Out.String(fname); Out.Ln; B.SetSrcPath(fname);
+      Out.String('Компилирую: '); Out.String(fname); Out.Ln;
+      B.SetSrcPath(fname);
       srcfile := Files.Old(fname); S.Init(srcfile, 0); S.Get(sym);
       
       startTime := Rtl.Time();
-      IF sym = S.module THEN modinit := P.Module() ELSE S.Mark('МОДУЛЬ?') END;
+      IF sym = S.module THEN
+         modinit := P.Module()
+      ELSE
+         S.Mark('МОДУЛЬ?')
+      END;
       IF S.errcnt = 0 THEN
          B.WriteSymfile; G.Generate(modinit);
          B.Cleanup; G.Cleanup; endTime := Rtl.Time()
@@ -46,8 +54,13 @@ PROCEDURE ErrorNotFound(fname: ARRAY OF CHAR);
    END ErrorNotFound;
 
 PROCEDURE Build(fname: ARRAY OF CHAR);
-   VAR r: Files.Rider; i: INTEGER; x: BYTE; start, end: INTEGER;
-      byteStr: ARRAY 1024 OF BYTE; srcfname: ARRAY 1024 OF CHAR;
+   VAR
+      r: Files.Rider;
+      i: INTEGER;
+      x: BYTE;
+      start, end: INTEGER;
+      byteStr: ARRAY 1024 OF BYTE;
+      srcfname: ARRAY 1024 OF CHAR;
    BEGIN
       start := Rtl.Time(); buildfile := Files.Old(fname);
       Files.Set(r, buildfile, 0); i := 0; Files.Read(r, x);
@@ -82,15 +95,20 @@ PROCEDURE Get;
 PROCEDURE Mark(msg: ARRAY OF CHAR);
    BEGIN
       Out.String('арг '); Out.Int(argIdx, 0); Out.String(': ');
-      Out.String(msg); Out.Ln; errFlag := TRUE
+      Out.String(msg); Out.Ln;
+      errFlag := TRUE
    END Mark;
 
 PROCEDURE Arguments;
+
    PROCEDURE Option;
       BEGIN
-      ёRtl.LowerCase(arg);
-         IF arg = '/b' THEN buildMode := TRUE; Get; Arguments
-         ELSIF arg = '/sym' THEN Get;
+         Rtl.LowerCase(arg);
+         IF arg = '/b' THEN
+            buildMode := TRUE;
+            Get; Arguments
+         ELSIF arg = '/sym' THEN
+            Get;
             IF arg[0] = '/' THEN
                Mark('путь до symbols?'); Option
             ELSE
@@ -124,8 +142,13 @@ BEGIN
    S.InstallNotifyError(NotifyError); Get; Arguments;
    IF fname[0] # 0X THEN
       IF Files.Old(fname) # NIL THEN
-         IF ~buildMode THEN Compile(fname) ELSE Build(fname) END
-      ELSE ErrorNotFound(fname)
+         IF ~buildMode THEN
+            Compile(fname)
+         ELSE
+            Build(fname)
+         END
+      ELSE
+         ErrorNotFound(fname)
       END
    ELSE
       Out.String('Компилятор Oberon-07 сброка 008'); Out.Ln;

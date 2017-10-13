@@ -2,7 +2,7 @@ MODULE Oberon07.Files;
 IMPORT SYSTEM, Rtl, Out;
 
 CONST
-   (* Win32 Const *)
+   (* Константы Win32 *)
    INVALID_FILE_ATTRIBUTES = {0..31};
    FILE_ATTRIBUTE_READONLY = {0};
    FILE_ATTRIBUTE_TEMPORARY = {8};

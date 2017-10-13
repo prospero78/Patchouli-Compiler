@@ -139,11 +139,13 @@ PROCEDURE Identifier(VAR sym: INTEGER);
             INC(i)
          END;
          Read
-         (* UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
-               OR (ch # '_') OR (ch > 'z') OR (ch > 'Я') OR (ch > 'ё')
-               OR (ch >'Ё'); *)
-      UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
-         OR (ch # '_') & (ch > 'Z') & (ch < 'a') OR (ch > 'z'); 
+         UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
+                  OR (ch # '_') & (ch > 'Z') & (ch < 'a')
+                  OR (ch > 'z')
+                  OR (ch > 'я')
+                  & (ch > 'Я');
+      (*UNTIL (ch < '0') OR (ch > '9') & (ch < 'A')
+         OR (ch # '_') & (ch > 'Z') & (ch < 'a') OR (ch > 'z'); *)
       IF i <= MaxIdLen THEN
          id[i] := 0X
       ELSE 

@@ -40,7 +40,9 @@ CONST
       char* = 20; int* = 21; real* = 22; false* = 23; true* = 24;
       nil* = 25; string* = 26; not* = 27; lparen* = 28; lbrak* = 29;
       lbrace* = 30; ident* = 31;
-      if* = 32; while* = 34; repeat* = 35; case* = 36; for* = 37;
+      if* = 32;
+      (* если* = if + 500; *)
+      while* = 34; repeat* = 35; case* = 36; for* = 37;
       comma* = 40; colon* = 41; becomes* = 42; upto* = 43; rparen* = 44;
       rbrak* = 45; rbrace* = 46; then* = 47; of* = 48; do* = 49;
       to* = 50; by* = 51; semicolon* = 52; end* = 53; bar* = 54;
@@ -472,12 +474,16 @@ PROCEDURE InstallNotifyError*(proc: NotifyErrorProc);
    END InstallNotifyError;
 
 PROCEDURE EnterKW(sym: INTEGER; name: IdStr);
-   BEGIN keyTab[k].id := name; keyTab[k].sym := sym; INC(k)
+   BEGIN
+      keyTab[k].id := name;
+      keyTab[k].sym := sym;
+      INC(k)
    END EnterKW;
 
 BEGIN
    k := 0; KWX[0] := 0; KWX[1] := 0;
    EnterKW(if, 'IF');
+   (* EnterKW(если, 'ЕСЛИ'); *)
    
    EnterKW(do, 'DO');
    EnterKW(of, 'OF');

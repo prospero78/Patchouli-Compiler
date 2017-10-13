@@ -1,4 +1,4 @@
-# Компилятор Oberon-07 (клон компиятора Пачоли)
+# Компилятор Oberon-07 (клон компилятора [Пачоли](https://github.com/congdm/Patchouli-Compiler))
 
 ## Описание
 

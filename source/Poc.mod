@@ -41,8 +41,8 @@ PROCEDURE Compile(fname: ARRAY OF CHAR);
 
 PROCEDURE ErrorNotFound(fname: ARRAY OF CHAR);
    BEGIN
-      Out.String('File '); Out.String(fname);
-      Out.String(' not found'); Out.Ln
+      Out.String('Файл '); Out.String(fname);
+      Out.String(' не найден'); Out.Ln
    END ErrorNotFound;
 
 PROCEDURE Build(fname: ARRAY OF CHAR);
@@ -65,41 +65,49 @@ PROCEDURE Build(fname: ARRAY OF CHAR);
          END
       END;
       end := Rtl.Time();
-      Out.String('Total build time: ');
+      Out.String('Общее время сборки: ');
       Out.Int(Rtl.TimeToMSecs(end-start), 0);
-      Out.String(' miliseconds'); Out.Ln
+      Out.String(' мсек'); Out.Ln
    END Build;
 
 (* -------------------------------------------------------------------------- *)
 (* -------------------------------------------------------------------------- *)
 
 PROCEDURE Get;
-   BEGIN INC(argIdx); Rtl.GetArg(arg, argIdx)
+   BEGIN
+      INC(argIdx);
+      Rtl.GetArg(arg, argIdx)
    END Get;
 
 PROCEDURE Mark(msg: ARRAY OF CHAR);
    BEGIN
-      Out.String('arg '); Out.Int(argIdx, 0); Out.String(': ');
+      Out.String('арг '); Out.Int(argIdx, 0); Out.String(': ');
       Out.String(msg); Out.Ln; errFlag := TRUE
    END Mark;
 
 PROCEDURE Arguments;
    PROCEDURE Option;
-      BEGIN Rtl.LowerCase(arg);
+      BEGIN
+      ёRtl.LowerCase(arg);
          IF arg = '/b' THEN buildMode := TRUE; Get; Arguments
          ELSIF arg = '/sym' THEN Get;
-            IF arg[0] = '/' THEN Mark('path to symbols?'); Option
-            ELSE B.SetSymPath(arg); Get; Arguments
+            IF arg[0] = '/' THEN
+               Mark('путь до symbols?'); Option
+            ELSE
+               B.SetSymPath(arg); Get; Arguments
             END
-         ELSE (* unhandled *) Get; Arguments
+         ELSE (* unhandled *)
+            Get; Arguments
          END
       END Option;
       
    BEGIN (* Arguments *)
       IF arg = 0X THEN (* end parsing *)
       ELSIF arg[0] # '/' THEN
-         IF fname[0] = 0X THEN fname := arg
-         ELSE Mark('another filename?')
+         IF fname[0] = 0X THEN
+            fname := arg
+         ELSE
+            Mark('другое имя файла?')
          END;
          Get; Arguments
       ELSIF arg[0] = '/' THEN Option
@@ -108,7 +116,7 @@ PROCEDURE Arguments;
 
 PROCEDURE NotifyError(pos: INTEGER; msg: ARRAY OF CHAR);
    BEGIN
-      Out.String('file pos '); Out.Int(pos, 0);
+      Out.String('Поз '); Out.Int(pos, 0);
       Out.String(': '); Out.String(msg); Out.Ln
    END NotifyError;
    
@@ -120,7 +128,7 @@ BEGIN
       ELSE ErrorNotFound(fname)
       END
    ELSE
-      Out.String('Patchouli Oberon-07 Compiler v0.8h'); Out.Ln;
-      Out.String('Usage: Poc <inputfile>'); Out.Ln
+      Out.String('Компилятор Oberon-07 сброка 008'); Out.Ln;
+      Out.String('Использование: Poc <inputfile>'); Out.Ln
    END
 END Poc.

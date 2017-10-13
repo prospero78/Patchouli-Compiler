@@ -1,5 +1,3 @@
-source/*.exe
-source/*.dll
 *.sym
 test/*.exe
 test/*.dll
@@ -13,4 +11,3 @@ build/*.exe
 .tempSymfile
 build/movebin.bat
 source/movebin.bat
-source/Oberon07.Rtl2.mod

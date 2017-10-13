@@ -821,11 +821,14 @@ END Import;
 
 PROCEDURE NewSystemModule*(modident: Ident);
    VAR mod: Module;
-BEGIN
-   NEW(mod);
-   mod.lev := -1; mod.first := systemScope.first;
-   modident.obj := mod; mod.ident := modident; system := TRUE
-END NewSystemModule;
+   BEGIN
+      NEW(mod);
+      mod.lev := -1;
+      mod.first := systemScope.first;
+      modident.obj := mod;
+      mod.ident := modident;
+      system := TRUE
+   END NewSystemModule;
 
 PROCEDURE NewModule0*(ident: Ident; id: ModuleId);
    VAR path, symfname: ARRAY 512 OF CHAR;

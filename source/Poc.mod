@@ -20,22 +20,22 @@ PROCEDURE Compile(fname: ARRAY OF CHAR);
    VAR srcfile: Files.File; modinit: B.Node;
       sym, startTime, endTime: INTEGER;
    BEGIN
-      Out.String('Compile '); Out.String(fname); Out.Ln; B.SetSrcPath(fname);
+      Out.String('Компилирую: '); Out.String(fname); Out.Ln; B.SetSrcPath(fname);
       srcfile := Files.Old(fname); S.Init(srcfile, 0); S.Get(sym);
       
       startTime := Rtl.Time();
-      IF sym = S.module THEN modinit := P.Module() ELSE S.Mark('MODULE?') END;
+      IF sym = S.module THEN modinit := P.Module() ELSE S.Mark('МОДУЛЬ?') END;
       IF S.errcnt = 0 THEN
          B.WriteSymfile; G.Generate(modinit);
          B.Cleanup; G.Cleanup; endTime := Rtl.Time()
       END;
       IF S.errcnt = 0 THEN
-         Out.String('Code size: '); Out.Int(G.pc, 0); Out.Ln;
-         Out.String('Global variables size: '); Out.Int(G.varSize, 0); Out.Ln;
-         Out.String('Static data size: '); Out.Int(G.staticSize, 0); Out.Ln;
-         Out.String('Compile time: ');
+         Out.String('Размер кода: '); Out.Int(G.pc, 0); Out.Ln;
+         Out.String('Размер глобальных переменных: '); Out.Int(G.varSize, 0); Out.Ln;
+         Out.String('Размер статических данных: '); Out.Int(G.staticSize, 0); Out.Ln;
+         Out.String('Время компиляции: ');
          Out.Int(Rtl.TimeToMSecs(endTime - startTime), 0);
-         Out.String(' miliseconds'); Out.Ln
+         Out.String(' мсек'); Out.Ln
       END
    END Compile;
 

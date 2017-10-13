@@ -1,19 +1,27 @@
-# Patchouli Oberon-07 Compiler
+# Компилятор Oberon-07 (клон компиятора Пачоли)
 
-## Description
+## Описание
 
-This compiler is based on Prof. Niklaus Wirth "Compiler Construction" book and the Oberon-07 compiler in Project Oberon (2013).
+Этот компилятор основан на книге профессора Никлауса Вирта 
+«Конструирование компиляторов» и компилятора Oberon-07 в
+Project Oberon (2013).
 
-The goal is to implement a recursive descent compiler for Oberon-07 language, Intel 64 architecture.
+Целью является внедрение рекурсивного спускаемого компилятора для языка 
+Oberon-07, архитектуры Intel 64.
 
-Previously named AyaCompiler, which was a single pass compiler. However, since the current version (which employs a syntax tree) is considerably different from the old one, I decide to change its name.
+Ранее назывался AyaCompiler, который был компилятором с одним проходом.
+Однако, поскольку текущая версия (которая использует дерево синтаксиса)
+значительно отличается от старой, я решил изменить её имя.
 
-Binary is also supply with source.
+Исполняемый файлы также содержат их исходники.
+## Лицензия
 
-## Documentation
+BSD-2
 
-This compiler follows the latest [Oberon-07 Report](http://www.inf.ethz.ch/personal/wirth/Oberon/Oberon07.Report.pdf) faithfully (hope so).
+## Документация
 
-Compiler-specific features are documented in: [Detailed Documentation](https://github.com/congdm/Patchouli-Compiler/wiki/Detailed-Documentation)
+Смотрите тут [Oberon-07 Report](http://www.inf.ethz.ch/personal/wirth/Oberon/Oberon07.Report.pdf) для последних уточнений.
 
-On the inner working of compiler: [Compiler Construction](https://www.inf.ethz.ch/personal/wirth/CompilerConstruction/index.html) and [Project Oberon 2013](https://www.inf.ethz.ch/personal/wirth/ProjectOberon/index.html) are pretty sufficient.
+Специфичные для компилятора функции описаны в:[Документация о подробностях](https://github.com/congdm/Patchouli-Compiler/wiki/Detailed-Documentation)
+
+О внутренней работе компилятора: [Конструирование компиляторов](https://www.inf.ethz.ch/personal/wirth/CompilerConstruction/index.html) and [Project Oberon 2013](https://www.inf.ethz.ch/personal/wirth/ProjectOberon/index.html) are pretty sufficient.

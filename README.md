@@ -1,5 +1,4 @@
-# Компилятор Oberon-07 (глубока модификация компилятора
-[Пачоли](https://github.com/congdm/Patchouli-Compiler))
+# Компилятор Oberon-07 (глубокая модификация компилятора [Пачоли](https://github.com/congdm/Patchouli-Compiler))
 
 ## Описание
 

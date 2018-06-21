@@ -2,7 +2,6 @@ MODULE oc;
 (*$CONSOLE*)
 
 IMPORT
-   SYSTEM,
    Rtl := [Oberon07.Rtl],
    Out := [Oberon07.Out],
    Files := [Oberon07.Files],

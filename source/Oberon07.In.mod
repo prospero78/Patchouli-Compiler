@@ -106,29 +106,29 @@ PROCEDURE Int*(VAR i: INTEGER);
 		END
 	END Int;
 
-PROCEDURE Init;
+PROCEDURE Настроить;
    VAR kern32: INTEGER;
    PROCEDURE Import(
       VAR proc: ARRAY OF SYSTEM.BYTE; lib: INTEGER; name: ARRAY OF CHAR);
-   VAR procAdr, i: INTEGER; byteStr: ARRAY 256 OF BYTE;
-   BEGIN
-      IF lib # 0 THEN i := 0;
-         WHILE name[i] # 0X DO
-            byteStr[i] := ORD(name[i]); INC(i)
-         END; byteStr[i] := 0;
-         SYSTEM.GetProcAddress(procAdr, lib, SYSTEM.ADR(byteStr));
-         SYSTEM.PUT(SYSTEM.ADR(proc), procAdr)
-      ELSE SYSTEM.PUT(SYSTEM.ADR(proc), 0)
-      END
-   END Import;
+		VAR procAdr, i: INTEGER; byteStr: ARRAY 256 OF BYTE;
+		BEGIN
+			IF lib # 0 THEN i := 0;
+				WHILE name[i] # 0X DO
+					byteStr[i] := ORD(name[i]); INC(i)
+				END; byteStr[i] := 0;
+				SYSTEM.GetProcAddress(procAdr, lib, SYSTEM.ADR(byteStr));
+				SYSTEM.PUT(SYSTEM.ADR(proc), procAdr)
+			ELSE SYSTEM.PUT(SYSTEM.ADR(proc), 0)
+			END
+		END Import;
 
-BEGIN (* Init *)
+	BEGIN (* Настроить *)
 		SYSTEM.LoadLibraryW(kern32, 'kernel32.dll');
 		Import(GetStdHandle, kern32, 'GetStdHandle');
 		Import(ReadConsoleW, kern32, 'ReadConsoleW')
 	END Init;
 
 BEGIN
-	Init;
+	Настроить;
 	Open
 END In.
